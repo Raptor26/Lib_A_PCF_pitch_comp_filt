@@ -7,8 +7,8 @@
  */
 
 
-#ifndef PCF_PITCH_COMPL_FILT_H_
-#define PCF_PITCH_COMPL_FILT_H_
+#ifndef PCF_PITCH_COMP_FILT_H_
+#define PCF_PITCH_COMP_FILT_H_
 
 
 /*#### |Begin| --> Секция - "Include" ########################################*/
@@ -21,7 +21,6 @@
 /*==== |End  | <-- Секция - "MK peripheral libraries" ========================*/
 
 /*==== |Begin| --> Секция - "Extern libraries" ===============================*/
-#include "../../Lib_H_MPU60x0_inertial_sensor/Lib_H_mpu60x0_inertial_sensor.h"
 /*==== |End  | <-- Секция - "Extern libraries" ===============================*/
 /*#### |End  | <-- Секция - "Include" ########################################*/
 
@@ -65,12 +64,12 @@ typedef struct
 
 /*#### |Begin| --> Секция - "Определение глобальных переменных" ##############*/
 extern void
-PCF_InitPitchData(
+PCF_Init_CompFilt(
 	pcf_all_dta_for_pitch_s *p_s,
 	pcf_all_dta_for_pitch_init_struct_s *init_s);
 
 extern float
-PCF_UpdatePitchAngle(
+PCF_GetPitchByCompFilt(
 	pcf_all_dta_for_pitch_s *p_s,
 	float gyrY,
 	float accX,
@@ -85,7 +84,7 @@ PCF_UpdatePitchAngle(
 /*#### |Begin| --> Секция - "Определение макросов" ###########################*/
 /*#### |End  | <-- Секция - "Определение макросов" ###########################*/
 
-#endif	/* PCF_PITCH_COMPL_FILT_H_ */
+#endif	/* PCF_PITCH_COMP_FILT_H_ */
 
 /*############################################################################*/
 /*################################ END OF FILE ###############################*/

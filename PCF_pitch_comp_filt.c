@@ -8,7 +8,7 @@
 
 
 /*#### |Begin| --> Секция - "Include" ########################################*/
-#include "../inc/PCF_pitch_compl_filt.h"
+#include "PCF_pitch_comp_filt.h"
 /*#### |End  | <-- Секция - "Include" ########################################*/
 
 
@@ -38,16 +38,16 @@
  * @return None
  */
 void
-PCF_InitPitchData(
+PCF_Init_CompFilt(
 	pcf_all_dta_for_pitch_s *p_s,
 	pcf_all_dta_for_pitch_init_struct_s *pInit_s)
 {
-	p_s->angle = 0.0f;
-	p_s->err = 0.0f;
+	p_s->angle	= 0.0f;
+	p_s->err	= 0.0f;
 
-	p_s->compFiltCoeff = pInit_s->compFiltCoeff;
-	p_s->dT = pInit_s->dT;
-	p_s->integralCoeff = pInit_s->integralCoeff;
+	p_s->compFiltCoeff	= pInit_s->compFiltCoeff;
+	p_s->dT				= pInit_s->dT;
+	p_s->integralCoeff	= pInit_s->integralCoeff;
 }
 
 /**
@@ -65,13 +65,15 @@ PCF_InitPitchData(
  * @return Текущий угол наклона
  */
 float
-PCF_UpdatePitchAngle(
+PCF_GetPitchByCompFilt(
 	pcf_all_dta_for_pitch_s *p_s,
 	float gyrY,
 	float accX,
 	float accZ)
 {
-	if (gyrY != NAN && accX != NAN && accZ != NAN && gyrY != 0.0f && accX != 0.0f && accZ != 0.0f)
+	if (((gyrY != NAN) && (gyrY != 0.0))
+			&& ((accX != NAN) && (accX != 0.0))
+			&& ((accZ != NAN) && (accZ != 0.0)))
 	{
 		/* Получить угол наклона по показаниям акселерометра */
 		float pitchByAcc = atan2(accX, accZ);
