@@ -7,8 +7,8 @@
  */
 
 
-#ifndef PCF_PITCH_COMP_FILT_H_
-#define PCF_PITCH_COMP_FILT_H_
+#ifndef LIB_A_PCF_PITCH_COMP_FILT_H_
+#define LIB_A_PCF_PITCH_COMP_FILT_H_
 
 
 /*#### |Begin| --> Секция - "Include" ########################################*/
@@ -84,7 +84,7 @@ PCF_GetPitchByCompFilt(
 /*#### |Begin| --> Секция - "Определение макросов" ###########################*/
 /*#### |End  | <-- Секция - "Определение макросов" ###########################*/
 
-#endif	/* PCF_PITCH_COMP_FILT_H_ */
+#endif	/* LIB_A_PCF_PITCH_COMP_FILT_H_ */
 
 /*############################################################################*/
 /*################################ END OF FILE ###############################*/
