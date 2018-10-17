@@ -71,7 +71,7 @@ PCF_Init_CompFilt(
 extern float
 PCF_GetPitchByCompFilt(
 	pcf_all_dta_for_pitch_s *p_s,
-	float gyrY,
+	float *gyrY,
 	float accX,
 	float accZ);
 /*#### |End  | <-- Секция - "Определение глобальных переменных" ##############*/

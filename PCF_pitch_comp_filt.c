@@ -67,11 +67,11 @@ PCF_Init_CompFilt(
 float
 PCF_GetPitchByCompFilt(
 	pcf_all_dta_for_pitch_s *p_s,
-	float gyrY,
+	float *gyrY,
 	float accX,
 	float accZ)
 {
-	if (((gyrY != NAN) && (gyrY != 0.0))
+	if (((*gyrY != NAN) && (*gyrY != 0.0))
 			&& ((accX != NAN) && (accX != 0.0))
 			&& ((accZ != NAN) && (accZ != 0.0)))
 	{
@@ -80,7 +80,7 @@ PCF_GetPitchByCompFilt(
 		float angleAcc = pitchByAcc * (1.0 - p_s->compFiltCoeff);
 
 		/* Найти приращение угла наклона за промежуток времени dT с учетом ошибки */
-		float deltaPitch = (gyrY - p_s->err) * p_s->dT;
+		float deltaPitch = (*gyrY - p_s->err) * p_s->dT;
 
 		/* Получить угол наклона по показаниям гироскопа */
 		float angleGyr = (p_s->angle + deltaPitch) * p_s->compFiltCoeff;
@@ -89,6 +89,9 @@ PCF_GetPitchByCompFilt(
 
 		/* Интегральная коррекция ошибки */
 		p_s->err += (p_s->angle - pitchByAcc) * p_s->integralCoeff;
+		
+		/* Компенсация gyro bias измеренного значения */
+		*gyrY -= p_s->err;
 	}
 	return p_s->angle;
 }
