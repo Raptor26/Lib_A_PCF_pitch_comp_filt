@@ -30,34 +30,40 @@
 
 
 /*#### |Begin| --> Секция - "Определение типов" ##############################*/
+#if !defined (__PCF_FPT__)
+#error "Please, set __REGUL_FPT__ (default value is float)"
+#endif
+
 typedef struct
 {
 	/* Коэффициент комплементарного фильтра */
-	float compFiltCoeff;
+	__PCF_FPT__ compFiltCoeff;
 
 	/* Коэффициент интегральной коррекции ошибки */
-	float integralCoeff;
+	__PCF_FPT__ integralCoeff;
 
 	/* Приращение */
-	float dT;
+	__PCF_FPT__ dT;
 } pcf_all_dta_for_pitch_init_struct_s;
 
 typedef struct
 {
 	/* Текущий угол наклона (в рад.) */
-	float angle;
+	__PCF_FPT__ angle;
 
 	/* Коэффициент комплементарного фильтра */
-	float compFiltCoeff;
+	__PCF_FPT__ compFiltCoeff;
 
 	/* Коэффициент интегральной коррекции ошибки */
-	float integralCoeff;
+	__PCF_FPT__ integralCoeff;
 
 	/* Приращение */
-	float dT;
+	__PCF_FPT__ dT;
 
 	/* Ошибка */
-	float err;
+	__PCF_FPT__ err;
+
+	size_t initPitchEn_flag;
 } pcf_all_dta_for_pitch_s;
 /*#### |End  | <-- Секция - "Определение типов" ##############################*/
 
@@ -68,12 +74,12 @@ PCF_Init_CompFilt(
 	pcf_all_dta_for_pitch_s *p_s,
 	pcf_all_dta_for_pitch_init_struct_s *init_s);
 
-extern float
+extern __PCF_FPT__
 PCF_GetPitchByCompFilt(
 	pcf_all_dta_for_pitch_s *p_s,
-	float *gyrY,
-	float accX,
-	float accZ);
+	__PCF_FPT__ *gyrY,
+	__PCF_FPT__ accX,
+	__PCF_FPT__ accZ);
 /*#### |End  | <-- Секция - "Определение глобальных переменных" ##############*/
 
 

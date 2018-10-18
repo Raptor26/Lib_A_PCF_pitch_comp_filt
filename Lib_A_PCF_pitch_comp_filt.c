@@ -48,6 +48,8 @@ PCF_Init_CompFilt(
 	p_s->compFiltCoeff	= pInit_s->compFiltCoeff;
 	p_s->dT				= pInit_s->dT;
 	p_s->integralCoeff	= pInit_s->integralCoeff;
+
+	p_s->initPitchEn_flag = 1u;
 }
 
 /**
@@ -64,32 +66,44 @@ PCF_Init_CompFilt(
  * 						по направлению вектора силы тяжести
  * @return Текущий угол наклона
  */
-float
+__PCF_FPT__
 PCF_GetPitchByCompFilt(
 	pcf_all_dta_for_pitch_s *p_s,
-	float *gyrY,
-	float accX,
-	float accZ)
+	__PCF_FPT__ *gyrY,
+	__PCF_FPT__ accX,
+	__PCF_FPT__ accZ)
 {
 	if (((*gyrY != NAN) && (*gyrY != 0.0))
 			&& ((accX != NAN) && (accX != 0.0))
 			&& ((accZ != NAN) && (accZ != 0.0)))
 	{
+		/* Если флаг инициализации угла наклона равен 1*/
+		if (p_s->initPitchEn_flag == 1u)
+		{
+			p_s->angle =
+				(__PCF_FPT__) atan2f((float)accX, (float)accZ);
+
+			/* Сброс Флага */
+			p_s->initPitchEn_flag = 0u;
+		}
+
 		/* Получить угол наклона по показаниям акселерометра */
-		float pitchByAcc = atan2(accX, accZ);
-		float angleAcc = pitchByAcc * (1.0 - p_s->compFiltCoeff);
+		__PCF_FPT__ pitchByAcc =
+			(__PCF_FPT__) atan2f(((float)accX), ((float)accZ));
+		__PCF_FPT__ angleAcc =
+			pitchByAcc * (((__PCF_FPT__) 1.0) - p_s->compFiltCoeff);
 
 		/* Найти приращение угла наклона за промежуток времени dT с учетом ошибки */
-		float deltaPitch = (*gyrY - p_s->err) * p_s->dT;
+		__PCF_FPT__ deltaPitch = (*gyrY - p_s->err) * p_s->dT;
 
 		/* Получить угол наклона по показаниям гироскопа */
-		float angleGyr = (p_s->angle + deltaPitch) * p_s->compFiltCoeff;
+		__PCF_FPT__ angleGyr = (p_s->angle + deltaPitch) * p_s->compFiltCoeff;
 
 		p_s->angle = angleGyr + angleAcc;
 
 		/* Интегральная коррекция ошибки */
 		p_s->err += (p_s->angle - pitchByAcc) * p_s->integralCoeff;
-		
+
 		/* Компенсация gyro bias измеренного значения */
 		*gyrY -= p_s->err;
 	}
