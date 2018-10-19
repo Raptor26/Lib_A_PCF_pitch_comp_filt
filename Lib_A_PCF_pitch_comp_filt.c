@@ -48,8 +48,28 @@ PCF_Init_CompFilt(
 	p_s->compFiltCoeff	= pInit_s->compFiltCoeff;
 	p_s->dT				= pInit_s->dT;
 	p_s->integralCoeff	= pInit_s->integralCoeff;
+	p_s->accNormWindow	= pInit_s->accNormWindow;
 
 	p_s->initPitchEn_flag = 1u;
+
+	ninteg_trapz_init_struct_s trapzInit_s;
+	NINTEG_Trapz_StructInit(
+		&trapzInit_s);
+	trapzInit_s.accumulate_flag = NINTEG_DISABLE;
+	trapzInit_s.integratePeriod = pInit_s->dT;
+	NINTEG_Trapz_Init(
+		&p_s->trapzInteg_s,
+		&trapzInit_s);
+}
+
+void
+PCF_CompFilt_StructInit(
+	pcf_all_dta_for_pitch_init_struct_s *pInit_s)
+{
+	pInit_s->accNormWindow	= (__PCF_FPT__) 0.0;
+	pInit_s->compFiltCoeff	= (__PCF_FPT__) 0.0;
+	pInit_s->dT				= (__PCF_FPT__) 0.0;
+	pInit_s->integralCoeff	= (__PCF_FPT__) 0.0;
 }
 
 /**
@@ -71,6 +91,7 @@ PCF_GetPitchByCompFilt(
 	pcf_all_dta_for_pitch_s *p_s,
 	__PCF_FPT__ *gyrY,
 	__PCF_FPT__ accX,
+	__PCF_FPT__ accY,
 	__PCF_FPT__ accZ)
 {
 	if (((*gyrY != NAN) && (*gyrY != 0.0))
@@ -87,25 +108,41 @@ PCF_GetPitchByCompFilt(
 			p_s->initPitchEn_flag = 0u;
 		}
 
+		/* Определение нормы вектора акселерометра */
+		p_s->accNorm = accX * accX + accY * accY + accZ * accZ;
+
+		__PCF_FPT__ compFiltCoeff = p_s->compFiltCoeff;
+
+		if ((p_s->accNorm > ((__PCF_FPT__) 1.0 + p_s->accNormWindow))
+				|| p_s->accNorm < (__PCF_FPT__) 1.0 - p_s->accNormWindow)
+		{
+			compFiltCoeff = (__PCF_FPT__) 1.0;
+		}
+
 		/* Получить угол наклона по показаниям акселерометра */
 		__PCF_FPT__ pitchByAcc =
 			(__PCF_FPT__) atan2f(((float)accX), ((float)accZ));
 		__PCF_FPT__ angleAcc =
-			pitchByAcc * (((__PCF_FPT__) 1.0) - p_s->compFiltCoeff);
+			pitchByAcc * (((__PCF_FPT__) 1.0) - compFiltCoeff);
 
-		/* Найти приращение угла наклона за промежуток времени dT с учетом ошибки */
-		__PCF_FPT__ deltaPitch = (*gyrY - p_s->err) * p_s->dT;
+		/* Компенсация gyro bias измеренного значения */
+		*gyrY -= p_s->err;
+
+		/* Найти приращение угла наклона за промежуток времени dT */
+		__PCF_FPT__ deltaPitch =
+			NINTEG_Trapz(
+				&p_s->trapzInteg_s,
+				*gyrY);
 
 		/* Получить угол наклона по показаниям гироскопа */
-		__PCF_FPT__ angleGyr = (p_s->angle + deltaPitch) * p_s->compFiltCoeff;
+		__PCF_FPT__ angleGyr = (p_s->angle + deltaPitch) * compFiltCoeff;
 
 		p_s->angle = angleGyr + angleAcc;
 
 		/* Интегральная коррекция ошибки */
 		p_s->err += (p_s->angle - pitchByAcc) * p_s->integralCoeff;
 
-		/* Компенсация gyro bias измеренного значения */
-		*gyrY -= p_s->err;
+
 	}
 	return p_s->angle;
 }

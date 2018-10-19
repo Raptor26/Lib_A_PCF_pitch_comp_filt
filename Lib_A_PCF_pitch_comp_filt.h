@@ -21,6 +21,7 @@
 /*==== |End  | <-- Секция - "MK peripheral libraries" ========================*/
 
 /*==== |Begin| --> Секция - "Extern libraries" ===============================*/
+#include "../Lib_A_NINTEG_numerical_integration/Lib_A_NINTEG_numerical_integration.h"
 /*==== |End  | <-- Секция - "Extern libraries" ===============================*/
 /*#### |End  | <-- Секция - "Include" ########################################*/
 
@@ -44,6 +45,8 @@ typedef struct
 
 	/* Приращение */
 	__PCF_FPT__ dT;
+
+	__PCF_FPT__ accNormWindow;
 } pcf_all_dta_for_pitch_init_struct_s;
 
 typedef struct
@@ -63,7 +66,14 @@ typedef struct
 	/* Ошибка */
 	__PCF_FPT__ err;
 
+	/* Норма акселерометра */
+	__PCF_FPT__ accNorm;
+
+	__PCF_FPT__ accNormWindow;
+
 	size_t initPitchEn_flag;
+
+	ninteg_trapz_s trapzInteg_s;
 } pcf_all_dta_for_pitch_s;
 /*#### |End  | <-- Секция - "Определение типов" ##############################*/
 
@@ -74,11 +84,16 @@ PCF_Init_CompFilt(
 	pcf_all_dta_for_pitch_s *p_s,
 	pcf_all_dta_for_pitch_init_struct_s *init_s);
 
+extern void
+PCF_CompFilt_StructInit(
+	pcf_all_dta_for_pitch_init_struct_s *pInit_s);
+
 extern __PCF_FPT__
 PCF_GetPitchByCompFilt(
 	pcf_all_dta_for_pitch_s *p_s,
 	__PCF_FPT__ *gyrY,
 	__PCF_FPT__ accX,
+	__PCF_FPT__ accY,
 	__PCF_FPT__ accZ);
 /*#### |End  | <-- Секция - "Определение глобальных переменных" ##############*/
 
