@@ -22,6 +22,7 @@
 
 /*==== |Begin| --> Секция - "Extern libraries" ===============================*/
 #include "../Lib_A_NINTEG_numerical_integration/Lib_A_NINTEG_numerical_integration.h"
+#include "../Lib_A_FILT_filters.c/Lib_A_FILT_filters.h"
 /*==== |End  | <-- Секция - "Extern libraries" ===============================*/
 /*#### |End  | <-- Секция - "Include" ########################################*/
 
@@ -35,6 +36,20 @@
 #error "Please, set __REGUL_FPT__ (default value is float)"
 #endif
 
+typedef enum
+{
+	PCF_ROLL = 0,
+	PCF_PITCH,
+	PCF_YAW,
+
+	/**
+	 * @brief Данное определение должно быть крайним в данном перечисляемом типе.
+	 *        Оно используется для определения размеров векторов показаний
+	 *        инерциального датчика
+	 */
+	PCF_VECT_SIZE,
+} pcf_coordinate_system_definitions_s;
+
 typedef struct
 {
 	/* Коэффициент комплементарного фильтра */
@@ -47,6 +62,10 @@ typedef struct
 	__PCF_FPT__ dT;
 
 	__PCF_FPT__ accNormWindow;
+    
+    __PCF_FPT__ compFiltValForAcc;
+    
+    __PCF_FPT__ integralErrorSaturation;
 } pcf_all_dta_for_pitch_init_struct_s;
 
 typedef struct
@@ -70,10 +89,14 @@ typedef struct
 	__PCF_FPT__ accNorm;
 
 	__PCF_FPT__ accNormWindow;
+    
+    FILT_comp_filt_s compFiltForAcc_a[PCF_VECT_SIZE];
 
 	size_t initPitchEn_flag;
 
 	ninteg_trapz_s trapzInteg_s;
+    
+    __PCF_FPT__ integralErrorSaturation;
 } pcf_all_dta_for_pitch_s;
 /*#### |End  | <-- Секция - "Определение типов" ##############################*/
 

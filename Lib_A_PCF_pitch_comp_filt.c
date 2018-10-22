@@ -21,6 +21,10 @@
 
 
 /*#### |Begin| --> Секция - "Прототипы локальных функций" ####################*/
+static __PCF_FPT__
+RestrictionSaturation (
+	__PCF_FPT__ value,
+	__PCF_FPT__ saturation);
 /*#### |End  | <-- Секция - "Прототипы локальных функций" ####################*/
 
 
@@ -49,6 +53,15 @@ PCF_Init_CompFilt(
 	p_s->dT				= pInit_s->dT;
 	p_s->integralCoeff	= pInit_s->integralCoeff;
 	p_s->accNormWindow	= pInit_s->accNormWindow;
+	p_s->integralErrorSaturation	= pInit_s->integralErrorSaturation;
+
+	size_t i = PCF_ROLL;
+	for (i = PCF_ROLL; i <= PCF_YAW; i++)
+	{
+		p_s->compFiltForAcc_a[i].filtCoeff =
+			pInit_s->compFiltValForAcc;
+	}
+
 
 	p_s->initPitchEn_flag = 1u;
 
@@ -70,6 +83,7 @@ PCF_CompFilt_StructInit(
 	pInit_s->compFiltCoeff	= (__PCF_FPT__) 0.0;
 	pInit_s->dT				= (__PCF_FPT__) 0.0;
 	pInit_s->integralCoeff	= (__PCF_FPT__) 0.0;
+	pInit_s->integralErrorSaturation = (__PCF_FPT__) 0.0;
 }
 
 /**
@@ -119,6 +133,25 @@ PCF_GetPitchByCompFilt(
 			compFiltCoeff = (__PCF_FPT__) 1.0;
 		}
 
+		/* Нормирование вектора показаний акселерометра */
+		p_s->accNorm = sqrt(p_s->accNorm);
+		accX /= p_s->accNorm;
+		accY /= p_s->accNorm;
+		accZ /= p_s->accNorm;
+
+		accX =
+			FILT_ComplFilt_f32(
+				&p_s->compFiltForAcc_a[PCF_ROLL],
+				accX);
+		accY =
+			FILT_ComplFilt_f32(
+				&p_s->compFiltForAcc_a[PCF_PITCH],
+				accY);
+		accZ =
+			FILT_ComplFilt_f32(
+				&p_s->compFiltForAcc_a[PCF_YAW],
+				accZ);
+
 		/* Получить угол наклона по показаниям акселерометра */
 		__PCF_FPT__ pitchByAcc =
 			(__PCF_FPT__) atan2f(((float)accX), ((float)accZ));
@@ -141,10 +174,35 @@ PCF_GetPitchByCompFilt(
 
 		/* Интегральная коррекция ошибки */
 		p_s->err += (p_s->angle - pitchByAcc) * p_s->integralCoeff;
-
-
+		p_s->err =
+			RestrictionSaturation(
+				p_s->err,
+				p_s->integralErrorSaturation);
 	}
 	return p_s->angle;
+}
+
+__PCF_FPT__
+RestrictionSaturation (
+	__PCF_FPT__ value,
+	__PCF_FPT__ saturation)
+{
+	/*    Ограничение насыщения выходного параметра */
+	//    Если переменная насыщения не равна "0.0":
+	if (saturation != (__PCF_FPT__) 0.0f)
+	{
+		//    Если выходное значение больше положительного значения переменной насыщения:
+		if (value > saturation)
+		{
+			value = saturation;
+		}
+		//  Если выходное значение меньше отрицательного значения переменной насыщения:
+		else if (value < (-saturation))
+		{
+			value = -saturation;
+		}
+	}
+	return value;
 }
 /*#### |End  | <-- Секция - "Описание глобальных функций" ####################*/
 
