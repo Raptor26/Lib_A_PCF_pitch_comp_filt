@@ -116,7 +116,7 @@ PCF_GetPitchByCompFilt(
 		if (p_s->initPitchEn_flag == 1u)
 		{
 			p_s->angle =
-				(__PCF_FPT__) atan2f((float)accX, (float)accZ);
+				(__PCF_FPT__) __PCF_atan2(accX, accZ);
 
 			/* Сброс Флага */
 			p_s->initPitchEn_flag = 0u;
@@ -134,7 +134,7 @@ PCF_GetPitchByCompFilt(
 		}
 
 		/* Нормирование вектора показаний акселерометра */
-		p_s->accNorm = sqrt(p_s->accNorm);
+		p_s->accNorm = __PCF_sqrt(p_s->accNorm);
 		accX /= p_s->accNorm;
 		accY /= p_s->accNorm;
 		accZ /= p_s->accNorm;
@@ -154,7 +154,7 @@ PCF_GetPitchByCompFilt(
 
 		/* Получить угол наклона по показаниям акселерометра */
 		__PCF_FPT__ pitchByAcc =
-			(__PCF_FPT__) atan2f(((float)accX), ((float)accZ));
+			(__PCF_FPT__) __PCF_atan2(accX, accZ);
 		__PCF_FPT__ angleAcc =
 			pitchByAcc * (((__PCF_FPT__) 1.0) - compFiltCoeff);
 

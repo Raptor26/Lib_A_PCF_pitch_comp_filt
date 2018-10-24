@@ -33,7 +33,26 @@
 
 /*#### |Begin| --> Секция - "Определение типов" ##############################*/
 #if !defined (__PCF_FPT__)
-#error "Please, set __REGUL_FPT__ (default value is float)"
+#error "Please, set __PCF_FPT__ = 'f' or 'd'"
+#endif
+
+/* Если __PCF_FPT__ равен float */
+#if 	__PCF_FPT__ == 'f'
+#undef 	__PCF_FPT__
+#define __PCF_FPT__		float
+
+/* Переопределение математических функций */
+#define __PCF_atan2(x,y)	atan2f(x,y)
+#define __PCF_sqrt(x)		sqrtf(x)
+
+/* Если __PCF_FPT__ равен double */
+#elif 	__PCF_FPT__ == 'd'
+#undef  __PCF_FPT__
+#define __PCF_FPT__		double
+
+/* Переопределение математических функций */
+#define __PCF_atan2(x,y)	atan2(x,y)
+#define __PCF_sqrt(x)		sqrt(x)
 #endif
 
 typedef enum
