@@ -43,8 +43,8 @@ RestrictionSaturation (
  */
 void
 PCF_Init_CompFilt(
-	pcf_all_dta_for_pitch_s *p_s,
-	pcf_all_dta_for_pitch_init_struct_s *pInit_s)
+	pcf_data_for_pitch_s *p_s,
+	pcf_data_for_pitch_init_struct_s *pInit_s)
 {
 	p_s->angle	= 0.0f;
 	p_s->err	= 0.0f;
@@ -77,7 +77,7 @@ PCF_Init_CompFilt(
 
 void
 PCF_CompFilt_StructInit(
-	pcf_all_dta_for_pitch_init_struct_s *pInit_s)
+	pcf_data_for_pitch_init_struct_s *pInit_s)
 {
 	pInit_s->accNormWindow	= (__PCF_FPT__) 0.0;
 	pInit_s->compFiltCoeff	= (__PCF_FPT__) 0.0;
@@ -102,7 +102,7 @@ PCF_CompFilt_StructInit(
  */
 __PCF_FPT__
 PCF_GetPitchByCompFilt(
-	pcf_all_dta_for_pitch_s *p_s,
+	pcf_data_for_pitch_s *p_s,
 	__PCF_FPT__ *gyrY,
 	__PCF_FPT__ accX,
 	__PCF_FPT__ accY,
@@ -140,15 +140,15 @@ PCF_GetPitchByCompFilt(
 		accZ /= p_s->accNorm;
 
 		accX =
-			FILT_ComplFilt_f32(
+			FILT_Complementary_fpt(
 				&p_s->compFiltForAcc_a[PCF_ROLL],
 				accX);
 		accY =
-			FILT_ComplFilt_f32(
+			FILT_Complementary_fpt(
 				&p_s->compFiltForAcc_a[PCF_PITCH],
 				accY);
 		accZ =
-			FILT_ComplFilt_f32(
+			FILT_Complementary_fpt(
 				&p_s->compFiltForAcc_a[PCF_YAW],
 				accZ);
 
