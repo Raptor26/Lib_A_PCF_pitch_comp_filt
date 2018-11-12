@@ -173,11 +173,14 @@ PCF_GetPitchByCompFilt(
 		p_s->angle = angleGyr + angleAcc;
 
 		/* Интегральная коррекция ошибки */
+		if (compFiltCoeff != (__PCF_FPT__) 1.0)
+		{
 		p_s->err += (p_s->angle - pitchByAcc) * p_s->integralCoeff;
 		p_s->err =
 			RestrictionSaturation(
 				p_s->err,
 				p_s->integralErrorSaturation);
+		}
 	}
 	return p_s->angle;
 }
